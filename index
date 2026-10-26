@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Ôn Tập Giữa HKI - Tiếng Anh 8B</title>
+    <style>
+        :root {
+            --green: #4CAF50;
+            --blue: #2196F3;
+            --dark-yellow: #FFB300;
+            --red: #F44336;
+            --white: #FFFFFF;
+            --light-blue: #E3F2FD;
+            --light-orange: #FFE0B2;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), 
+                        radial-gradient(circle at 20% 30%, var(--light-blue) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, var(--light-orange) 0%, transparent 50%);
+            background-color: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 4rem;
+            color: rgba(33, 150, 243, 0.08);
+            font-weight: 900;
+            white-space: nowrap;
+            z-index: 0;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin: 15px;
+            z-index: 1;
+            position: relative;
+            box-sizing: border-box;
+            border-top: 5px solid var(--blue);
+        }
+
+        h1, h2 { text-align: center; color: var(--blue); margin-top: 0; }
+        
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--blue); }
+        .input-group input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .input-group input:focus { border-color: var(--dark-yellow); outline: none; }
+
+        .btn {
+            display: block; width: 100%; padding: 12px; font-size: 16px; font-weight: bold;
+            color: var(--white); background-color: var(--blue); border: none; border-radius: 8px;
+            cursor: pointer; transition: 0.3s;
+        }
+        .btn:hover { background-color: #1976D2; }
+        .btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .btn-retry { background-color: var(--dark-yellow); margin-top: 10px; color: #333; }
+        
+        .stats-bar {
+            display: flex; justify-content: space-between; font-size: 14px; font-weight: bold;
+            margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px dashed #ddd; flex-wrap: wrap; gap: 5px;
+        }
+        .stats-bar span { padding: 4px 8px; border-radius: 12px; }
+        .st-attempt { background: var(--blue); color: var(--white); width: 100%; text-align: center; margin-bottom: 5px; }
+        .st-done { background: #eee; color: #333; }
+        .st-correct { background: var(--green); color: var(--white); }
+        .st-wrong { background: var(--red); color: var(--white); }
+
+        .question-box {
+            padding: 15px; border-radius: 12px; margin-bottom: 15px; transition: background 0.3s;
+            font-size: 16px; font-weight: 500;
+        }
+
+        .question-translation {
+            font-size: 14px;
+            color: var(--red);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option {
+            padding: 12px 15px; background: var(--white); border: 2px solid var(--blue);
+            border-radius: 8px; cursor: pointer; font-weight: 500; transition: 0.2s;
+        }
+        .option:hover { background: #f0f8ff; }
+        .option.correct { background: var(--green); color: var(--white); border-color: var(--green); }
+        .option.wrong { background: var(--red); color: var(--white); border-color: var(--red); }
+        .option.disabled { pointer-events: none; }
+
+        .explanation-box {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #ffebee;
+            border-left: 5px solid var(--red);
+            color: #c62828;
+            font-size: 15px;
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        .result-board { text-align: center; font-size: 18px; line-height: 1.6; }
+        .score-circle {
+            width: 100px; height: 100px; line-height: 100px; margin: 20px auto;
+            background: var(--blue); color: var(--white); font-size: 32px; font-weight: bold;
+            border-radius: 50%; box-shadow: 0 4px 10px rgba(33, 150, 243, 0.4);
+        }
+        .message { font-weight: bold; color: var(--dark-yellow); font-size: 20px; margin-bottom: 15px;}
+    </style>
+</head>
+<body>
+    <div class="watermark">GV. Nguyễn Tiên</div>
+
+    <div class="container">
+        <!-- MÀN HÌNH BẮT ĐẦU -->
+        <div id="start-screen" class="screen active">
+            <h1>ÔN TẬP GIỮA HKI</h1>
+            <h2 style="color: var(--dark-yellow); font-size: 18px;">Môn: Tiếng Anh 8B</h2>
+            <div class="input-group">
+                <label for="student-name">Họ và Tên:</label>
+                <input type="text" id="student-name" placeholder="Nhập họ và tên..." required>
+            </div>
+            <div class="input-group">
+                <label for="student-class">Lớp:</label>
+                <input type="text" id="student-class" placeholder="Nhập lớp (VD: 8/1)..." required>
+            </div>
+            <p id="global-attempt-display" style="text-align: center; font-weight: bold; color: var(--red);"></p>
+            <button class="btn" onclick="startQuiz()">BẮT ĐẦU LÀM BÀI</button>
+        </div>
+
+        <!-- MÀN HÌNH CÂU HỎI -->
+        <div id="quiz-screen" class="screen">
+            <div class="stats-bar">
+                <span class="st-attempt" id="attempt-indicator">Lượt làm bài: 1</span>
+                <span class="st-done" id="stat-done">Đã làm: 0/23</span>
+                <span class="st-correct" id="stat-correct">Đúng: 0</span>
+                <span class="st-wrong" id="stat-wrong">Sai: 0</span>
+            </div>
+            
+            <div id="question-container" class="question-box">
+                <!-- Nội dung câu hỏi -->
+            </div>
+            
+            <div class="options" id="options-container">
+                <!-- Các đáp án -->
+            </div>
+
+            <!-- Giải thích -->
+            <div id="explanation-box" class="explanation-box"></div>
+
+            <button class="btn" id="next-btn" onclick="nextQuestion()" disabled style="margin-top: 20px;">CÂU TIẾP THEO</button>
+        </div>
+
+        <!-- MÀN HÌNH KẾT QUẢ -->
+        <div id="result-screen" class="screen result-board">
+            <h2>TỔNG KẾT BÀI LÀM</h2>
+            <p style="font-weight: bold; font-size: 20px; color: var(--blue);" id="res-name"></p>
+            <p>Lượt làm bài hiện tại: <strong id="res-attempt" style="color: var(--red);"></strong></p>
+            <div class="score-circle" id="res-score"></div>
+            <div class="message" id="res-message"></div>
+            <p>Số câu đúng: <strong id="res-correct" style="color: var(--green);"></strong> | Số câu sai: <strong id="res-wrong" style="color: var(--red);"></strong></p>
+            
+            <button class="btn btn-retry" onclick="retryQuiz()">LÀM LẠI BÀI</button>
+        </div>
+    </div>
+
+    <audio id="audio-correct" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" preload="auto"></audio>
+    <audio id="audio-wrong" src="https://assets.mixkit.co/active_storage/sfx/2997/2997-preview.mp3" preload="auto"></audio>
+
+    <script>
+        const GOOGLE_SHEET_WEB_APP_URL = ""; 
+
+        const originalQuestions = [
+            // --- SOUNDS ---
+            { 
+                q: "1. A. t<u>ou</u>r B. acc<u>ou</u>nt C. cl<u>ou</u>d D. s<u>ou</u>nd", 
+                translation: "Chọn từ có phần gạch chân phát âm khác với các từ còn lại.",
+                options: ["A. tour", "B. account", "C. cloud", "D. sound"], 
+                answer: 0,
+                explanation: "Từ 'tour' phát âm là /ʊə/, các từ còn lại (account, cloud, sound) phát âm là /aʊ/."
+            },
+            { 
+                q: "2. A. dr<u>i</u>ver B. badm<u>i</u>nton C. mus<u>i</u>c D. d<u>i</u>scussion", 
+                translation: "Chọn từ có phần gạch chân phát âm khác với các từ còn lại.",
+                options: ["A. driver", "B. badminton", "C. music", "D. discussion"], 
+                answer: 0,
+                explanation: "Từ 'driver' phát âm là /aɪ/, các từ còn lại phát âm là /ɪ/."
+            },
+            { 
+                q: "3. A. st<u>u</u>dy B. <u>u</u>pload C. disc<u>u</u>ss D. foc<u>u</u>s", 
+                translation: "Chọn từ có phần gạch chân phát âm khác với các từ còn lại.",
+                options: ["A. study", "B. upload", "C. discuss", "D. focus"], 
+                answer: 3,
+                explanation: "Từ 'focus' âm 'u' phát âm là /ə/, các từ còn lại phát âm là /ʌ/."
+            },
+            { 
+                q: "4. A. gr<u>ew</u> B. thr<u>ew</u> C. kn<u>ew</u> D. fl<u>ew</u>", 
+                translation: "Chọn từ có phần gạch chân phát âm khác với các từ còn lại.",
+                options: ["A. grew", "B. threw", "C. knew", "D. flew"], 
+                answer: 2,
+                explanation: "Từ 'knew' phát âm là /nju:/, các từ còn lại phát âm là /u:/."
+            },
+            { 
+                q: "5. A. m<u>e</u>dia B. str<u>e</u>ss C. pr<u>e</u>ssure D. w<u>e</u>bsite", 
+                translation: "Chọn từ có phần gạch chân phát âm khác với các từ còn lại.",
+                options: ["A. media", "B. stress", "C. pressure", "D. website"], 
+                answer: 0,
+                explanation: "Từ 'media' phát âm là /i:/, các từ còn lại phát âm là /e/."
+            },
+
+            // --- PREPOSITIONS ---
+            { 
+                q: "1. Our teacher was excited ______ hearing that all the students had passed the English examination.", 
+                translation: "Giáo viên của chúng tôi rất hào hứng ______ việc nghe tin tất cả học sinh đã đậu kỳ thi Tiếng Anh.",
+                options: ["A. in", "B. at", "C. about", "D. of"], 
+                answer: 2,
+                explanation: "Cấu trúc: <b>be excited about</b> (hào hứng, phấn khích về việc gì)."
+            },
+            { 
+                q: "2. Although Jack is good at playing the guitar, he isn't keen ______ performing in front of a large audience.", 
+                translation: "Mặc dù Jack chơi guitar giỏi, nhưng cậu ấy không thích ______ biểu diễn trước khán giả đông người.",
+                options: ["A. at", "B. on", "C. in", "D. about"], 
+                answer: 1,
+                explanation: "Cấu trúc: <b>be keen on</b> (thích, đam mê việc gì)."
+            },
+            { 
+                q: "3. Susan is so crazy ______ reading detective stories.", 
+                translation: "Susan rất say mê ('phát cuồng') ______ việc đọc truyện trinh thám.",
+                options: ["A. in", "B. about", "C. at", "D. on"], 
+                answer: 1,
+                explanation: "Cấu trúc: <b>be crazy about</b> (vô cùng thích thú, 'phát cuồng' vì cái gì)."
+            },
+            { 
+                q: "4. Although Tom is fond ______ playing video games, he is also keen ______ joining outdoor activities with his friends.", 
+                translation: "Mặc dù Tom thích ______ chơi điện tử, nhưng cậu ấy cũng thích ______ tham gia các hoạt động ngoài trời với bạn bè.",
+                options: ["A. in / at", "B. at / on", "C. on / in", "D. of / on"], 
+                answer: 3,
+                explanation: "Cấu trúc: <b>be fond of</b> và <b>be keen on</b> (đều mang nghĩa thích làm việc gì)."
+            },
+            { 
+                q: "5. My classmates are interested ______ learning about different cultures and traditional festivals.", 
+                translation: "Các bạn cùng lớp của tôi quan tâm ______ việc tìm hiểu về các nền văn hóa khác nhau và các lễ hội truyền thống.",
+                options: ["A. at", "B. on", "C. in", "D. about"], 
+                answer: 2,
+                explanation: "Cấu trúc: <b>be interested in</b> (quan tâm, thích thú với cái gì)."
+            },
+            
+            // --- VOCABULARY ---
+            { 
+                q: "1. I like to _______ Tik Tok to watch short clips whenever I have free time.", 
+                translation: "Tôi thích _______ Tik Tok để xem các clip ngắn mỗi khi có thời gian rảnh.",
+                options: ["A. knit", "B. surf", "C. message", "D. relax"], 
+                answer: 1,
+                explanation: "Cụm từ <b>'surf Tik Tok / surf the Net'</b>: lướt mạng, lướt Tik Tok."
+            },
+            { 
+                q: "2. I usually _______ my friends whenever I need your help.", 
+                translation: "Tôi thường _______ bạn bè mỗi khi tôi cần sự giúp đỡ.",
+                options: ["A. message", "B. hit", "C. keep", "D. joke"], 
+                answer: 0,
+                explanation: "Động từ <b>'message'</b> mang nghĩa là nhắn tin."
+            },
+            { 
+                q: "3. In the beach _______, the apartments and villas have daily maid service.", 
+                translation: "Trong _______ bãi biển, các căn hộ và biệt thự có dịch vụ dọn phòng hàng ngày.",
+                options: ["A. conservation", "B. expectation", "C. resort", "D. competition"], 
+                answer: 2,
+                explanation: "Cụm từ <b>'beach resort'</b>: khu nghỉ mát / khu nghỉ dưỡng bãi biển."
+            },
+            { 
+                q: "4. I am _______ on visiting my grandparents' on the weekend.", 
+                translation: "Tôi _______ về việc đến thăm ông bà vào cuối tuần.",
+                options: ["A. fond", "B. keen", "C. interested", "D. bored"], 
+                answer: 1,
+                explanation: "Vì giới từ phía sau là 'on', ta chọn <b>keen</b>. Cấu trúc <b>be keen on</b> (thích làm gì)."
+            },
+            { 
+                q: "5. The experience of ________ cows at Long Thanh dairy farm is a very memorable memory from my travels.", 
+                translation: "Trải nghiệm ________ bò ở trang trại bò sữa Long Thành là một kỷ niệm rất đáng nhớ trong chuyến đi của tôi.",
+                options: ["A. herding", "B. ploughing", "C. catching", "D. milking"], 
+                answer: 3,
+                explanation: "Cụm từ <b>'milk cows'</b> mang nghĩa là vắt sữa bò."
+            },
+            { 
+                q: "6. The teacher asks the whole class to _______ on studying to prepare well for the midterm exam.", 
+                translation: "Giáo viên yêu cầu cả lớp _______ vào việc học để chuẩn bị tốt cho kỳ thi giữa kỳ.",
+                options: ["A. advise", "B. focus", "C. connect", "D. coach"], 
+                answer: 1,
+                explanation: "Cấu trúc <b>focus on</b>: tập trung vào việc gì."
+            },
+            { 
+                q: "7. Ally tries to overcome the _______ from her family by studying hard to get the best results.", 
+                translation: "Ally cố gắng vượt qua _______ từ gia đình bằng cách học tập chăm chỉ để đạt kết quả tốt nhất.",
+                options: ["A. media", "B. teamwork", "C. website", "D. pressure"], 
+                answer: 3,
+                explanation: "Danh từ <b>'pressure'</b> mang nghĩa là áp lực."
+            },
+            { 
+                q: "8. According to many surveys, teenagers now find it interesting to _______ their short videos on Tik Tok.", 
+                translation: "Theo nhiều cuộc khảo sát, thanh thiếu niên hiện nay thấy thú vị khi _______ các video ngắn của họ lên Tik Tok.",
+                options: ["A. post", "B. avoid", "C. go", "D. check"], 
+                answer: 0,
+                explanation: "Động từ <b>'post'</b> mang nghĩa là đăng tải (bài viết, video...)."
+            },
+            { 
+                q: "9. Farmers always need extra help with the _______.", 
+                translation: "Nông dân luôn cần thêm sự giúp đỡ với _______.",
+                options: ["A. orchard", "B. harvest", "C. explosion", "D. cattle"], 
+                answer: 1,
+                explanation: "Danh từ <b>'harvest'</b> mang nghĩa là vụ mùa, vụ thu hoạch."
+            },
+            { 
+                q: "10. After school, we sometimes post a few questions on the _______ for discussion.", 
+                translation: "Sau giờ học, chúng tôi thỉnh thoảng đăng vài câu hỏi lên _______ để thảo luận.",
+                options: ["A. bully", "B. forum", "C. account", "D. notification"], 
+                answer: 1,
+                explanation: "Danh từ <b>'forum'</b> mang nghĩa là diễn đàn (nơi thảo luận)."
+            },
+            { 
+                q: "11. I take pride in my positive attitude. I always stay _______, even in the worst situations.", 
+                translation: "Tôi tự hào về thái độ tích cực của mình. Tôi luôn giữ _______, ngay cả trong những tình huống tồi tệ nhất.",
+                options: ["A. enjoyable", "B. peaceful", "C. calm", "D. user-friendly"], 
+                answer: 2,
+                explanation: "Cụm từ <b>'stay calm'</b> mang nghĩa là giữ bình tĩnh."
+            },
+            { 
+                q: "12. Friendship is expressed through _______, caring, and helping each other when facing difficulties.", 
+                translation: "Tình bạn được thể hiện qua sự _______, quan tâm và giúp đỡ lẫn nhau khi gặp khó khăn.",
+                options: ["A. sharing", "B. doing", "C. making", "D. discussing"], 
+                answer: 0,
+                explanation: "Danh động từ <b>'sharing'</b> mang nghĩa là sự chia sẻ."
+            },
+            { 
+                q: "13. She wants to _______ the club to connect with new friends.", 
+                translation: "Cô ấy muốn _______ câu lạc bộ để kết nối với những người bạn mới.",
+                options: ["A. cook", "B. browse", "C. join", "D. log"], 
+                answer: 2,
+                explanation: "Động từ <b>'join'</b> mang nghĩa là tham gia (vào một câu lạc bộ, nhóm...)."
+            }
+        ];
+
+        let questions = [];
+        let currentIdx = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let attempt = 1;
+        let studentName = "";
+        let studentClass = "";
+        let answeredCurrent = false;
+
+        window.onload = function() {
+            let savedAttempt = localStorage.getItem('gvTien_Eng8_attempt');
+            if(savedAttempt) attempt = parseInt(savedAttempt) + 1;
+            document.getElementById('global-attempt-display').innerText = `Số lượt đã làm trước đây: ${attempt - 1}`;
+        }
+
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startQuiz() {
+            studentName = document.getElementById('student-name').value.trim();
+            studentClass = document.getElementById('student-class').value.trim();
+
+            if (!studentName || !studentClass) {
+                alert("Em vui lòng nhập đầy đủ Họ Tên và Lớp nhé!");
+                return;
+            }
+
+            localStorage.setItem('gvTien_Eng8_attempt', attempt);
+            
+            if (attempt >= 3) {
+                let sounds = shuffleArray(originalQuestions.slice(0, 5));
+                let preps = shuffleArray(originalQuestions.slice(5, 10));
+                let vocabs = shuffleArray(originalQuestions.slice(10, 23));
+                questions = [...sounds, ...preps, ...vocabs];
+            } else {
+                questions = [...originalQuestions];
+            }
+
+            currentIdx = 0;
+            correctCount = 0;
+            wrongCount = 0;
+
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            
+            document.getElementById('attempt-indicator').innerText = `Lượt làm bài: ${attempt}`;
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answeredCurrent = false;
+            let nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = true;
+            nextBtn.style.backgroundColor = "#ccc";
+
+            document.getElementById('explanation-box').style.display = 'none';
+
+            let qData = questions[currentIdx];
+            let qContainer = document.getElementById('question-container');
+            let optsContainer = document.getElementById('options-container');
+
+            document.getElementById('stat-done').innerText = `Đã làm: ${currentIdx}/${questions.length}`;
+            document.getElementById('stat-correct').innerText = `Đúng: ${correctCount}`;
+            document.getElementById('stat-wrong').innerText = `Sai: ${wrongCount}`;
+
+            qContainer.style.backgroundColor = (currentIdx % 2 === 0) ? "var(--light-blue)" : "var(--light-orange)";
+            
+            // Render Câu hỏi và Dịch nghĩa
+            qContainer.innerHTML = `<strong>Câu ${currentIdx + 1}:</strong> ${qData.q}
+                                    <div class="question-translation">${qData.translation}</div>`;
+
+            optsContainer.innerHTML = "";
+            qData.options.forEach((opt, index) => {
+                let div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = opt;
+                div.onclick = () => selectOption(div, index, qData.answer);
+                optsContainer.appendChild(div);
+            });
+        }
+
+        function selectOption(element, selectedIdx, correctIdx) {
+            if (answeredCurrent) return;
+            answeredCurrent = true;
+
+            let opts = document.getElementById('options-container').children;
+            for(let i=0; i<opts.length; i++) {
+                opts[i].classList.add('disabled');
+            }
+
+            if (selectedIdx === correctIdx) {
+                element.classList.add('correct');
+                correctCount++;
+                playSound('correct');
+            } else {
+                element.classList.add('wrong');
+                opts[correctIdx].classList.add('correct');
+                wrongCount++;
+                playSound('wrong');
+                
+                let explBox = document.getElementById('explanation-box');
+                explBox.innerHTML = `💡 <strong>Giải thích chi tiết:</strong><br>${questions[currentIdx].explanation}`;
+                explBox.style.display = 'block';
+            }
+
+            document.getElementById('stat-correct').innerText = `Đúng: ${correctCount}`;
+            document.getElementById('stat-wrong').innerText = `Sai: ${wrongCount}`;
+
+            let nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = false;
+            nextBtn.style.backgroundColor = "var(--blue)";
+        }
+
+        function playSound(type) {
+            let audio = document.getElementById(`audio-${type}`);
+            audio.currentTime = 0;
+            audio.volume = 1.0;
+            audio.play().catch(e => console.log("Audio autoplay prevented"));
+        }
+
+        function nextQuestion() {
+            currentIdx++;
+            if (currentIdx < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('result-screen').classList.add('active');
+
+            let scoreText = `${correctCount}/${questions.length}`;
+            let percent = correctCount / questions.length;
+            
+            document.getElementById('res-name').innerText = `${studentName} - ${studentClass}`;
+            document.getElementById('res-attempt').innerText = attempt;
+            document.getElementById('res-score').innerText = scoreText;
+            document.getElementById('res-correct').innerText = correctCount;
+            document.getElementById('res-wrong').innerText = wrongCount;
+
+            let msg = document.getElementById('res-message');
+            if (percent === 1) {
+                msg.innerText = "Tuyệt vời! Em đã hoàn thành xuất sắc!";
+                msg.style.color = "var(--green)";
+            } else if (percent >= 0.7) {
+                msg.innerText = "Rất tốt! Cố gắng phát huy nhé!";
+                msg.style.color = "var(--blue)";
+            } else if (percent >= 0.5) {
+                msg.innerText = "Em làm khá ổn. Ôn tập thêm để đạt điểm cao hơn!";
+                msg.style.color = "var(--dark-yellow)";
+            } else {
+                msg.innerText = "Đừng nản chí! Hãy xem lại đề cương và làm lại nhé!";
+                msg.style.color = "var(--red)";
+            }
+
+            sendDataToSheets(scoreText);
+        }
+
+        function retryQuiz() {
+            attempt++;
+            localStorage.setItem('gvTien_Eng8_attempt', attempt);
+            
+            if (attempt >= 3) {
+                let sounds = shuffleArray(originalQuestions.slice(0, 5));
+                let preps = shuffleArray(originalQuestions.slice(5, 10));
+                let vocabs = shuffleArray(originalQuestions.slice(10, 23));
+                questions = [...sounds, ...preps, ...vocabs];
+            } else {
+                questions = [...originalQuestions];
+            }
+            
+            currentIdx = 0;
+            correctCount = 0;
+            wrongCount = 0;
+
+            document.getElementById('result-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            document.getElementById('attempt-indicator').innerText = `Lượt làm bài: ${attempt}`;
+            loadQuestion();
+        }
+
+        function sendDataToSheets(score) {
+            if(!GOOGLE_SHEET_WEB_APP_URL) return; 
+            
+            let data = {
+                name: studentName,
+                className: studentClass,
+                score: score,
+                attempt: attempt
+            };
+
+            fetch(GOOGLE_SHEET_WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            }).then(() => console.log("Đã gửi dữ liệu về Sheet"))
+              .catch(error => console.error("Lỗi gửi dữ liệu:", error));
+        }
+    </script>
+</body>
+</html>
